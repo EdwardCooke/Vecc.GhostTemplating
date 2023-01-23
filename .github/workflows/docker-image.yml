@@ -3,10 +3,6 @@ name: Docker Image CI
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-  schedule:
-  - cron: '0 0 * * 5'
 
 env:
   image_name: ghost-templating
