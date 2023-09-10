@@ -14,11 +14,13 @@
         {
             var result = new Header();
 
-            result.HeaderClass = "site-home-header";
+            result.BodyClasses = "home-template";
+            //result.HeaderClass = "site-home-header";
             result.Description = Settings.Description;
             result.OGDescription = Settings.OGDescription;
             result.OGTitle = Options.SiteName;
-            result.RenderNavigation = false;
+            result.RenderNavigation = true;
+            result.RenderSitename = false;
             result.Settings = Settings;
             result.Title = Settings.Title;
 

@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Razor.Hosting;
+using Microsoft.AspNetCore.Razor.Language;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -16,6 +18,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
@@ -27,21 +30,22 @@ namespace Vecc.GhostTemplating
 {
     internal class Program
     {
+        private static ILogger<Program> _logger;
         private static async Task Main(string[] args)
         {
             var servicesMain = ServiceProvider.Build(args);
             using var serviceScope = servicesMain.CreateScope();
             var services = serviceScope.ServiceProvider;
 
-            var logger = services.GetRequiredService<ILogger<Program>>();
+            _logger = services.GetRequiredService<ILogger<Program>>();
             try
             {
-                logger.LogInformation("Starting");
+                _logger.LogInformation("Starting");
                 var client = services.GetRequiredService<GhostClient>();
                 var engine = services.GetRequiredService<IRazorViewEngine>();
                 var templatingOptions = services.GetRequiredService<IOptions<TemplatingOptions>>();
                 var options = templatingOptions.Value;
-                logger.LogInformation("Options: {@options}", options);
+                _logger.LogInformation("Options: {@options}", options);
 
                 var settings = await client.GetSettingsAsync();
                 var tags = await client.GetTagsAsync();
@@ -84,7 +88,7 @@ namespace Vecc.GhostTemplating
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Error while generating site");
+                _logger.LogError(exception, "Error while generating site");
             }
             serviceScope.Dispose();
         }
@@ -104,39 +108,38 @@ namespace Vecc.GhostTemplating
             var tempDataDictionary = new TempDataDictionary(httpContext, tempDataProvider);
             viewDataDictionary.Model = post;
 
-            using (var stringWriter = new StringWriter())
+            using var stringWriter = new StringWriter();
+            var view = engine.FindView(actionContext, type, true);
+            var viewContext = new ViewContext(actionContext, view.View, viewDataDictionary, tempDataDictionary, stringWriter, htmlHelperOptions);
+
+            await view.View.RenderAsync(viewContext);
+
+            var result = stringWriter.ToString();
+            var directory = Path.Combine(options.OutputDirectory, post.Slug);
+            if (!Directory.Exists(directory))
             {
-                var view = engine.GetView(".", $"/Templates/{type}.cshtml", true);
-                var viewContext = new ViewContext(actionContext, view.View, viewDataDictionary, tempDataDictionary, stringWriter, htmlHelperOptions);
+                Directory.CreateDirectory(directory);
+            }
+
+            File.WriteAllText(Path.Combine(directory, "index.html"), result);
+            await DownloadImagesFromPostAsync(post.HTML, settings, options);
+            if (type == "post")
+            {
+                using var ampWriter = new StringWriter();
+                //amp it
+                view = engine.GetView(".", $"/Templates/post-amp.cshtml", true);
+                viewContext = new ViewContext(actionContext, view.View, viewDataDictionary, tempDataDictionary, ampWriter, htmlHelperOptions);
 
                 await view.View.RenderAsync(viewContext);
 
-                var result = stringWriter.ToString();
-                var directory = Path.Combine(options.OutputDirectory, post.Slug);
+                result = ampWriter.ToString();
+                directory = Path.Combine(directory, "amp");
                 if (!Directory.Exists(directory))
                 {
                     Directory.CreateDirectory(directory);
                 }
 
                 File.WriteAllText(Path.Combine(directory, "index.html"), result);
-                await DownloadImagesFromPostAsync(post.HTML, settings, options);
-                if (type == "post")
-                {
-                    //amp it
-                    view = engine.GetView(".", $"/Templates/post-amp.cshtml", true);
-                    viewContext = new ViewContext(actionContext, view.View, viewDataDictionary, tempDataDictionary, stringWriter, htmlHelperOptions);
-
-                    await view.View.RenderAsync(viewContext);
-
-                    result = stringWriter.ToString();
-                    directory = Path.Combine(directory, "amp");
-                    if (!Directory.Exists(directory))
-                    {
-                        Directory.CreateDirectory(directory);
-                    }
-
-                    File.WriteAllText(Path.Combine(directory, "index.html"), result);
-                }
             }
         }
 
@@ -367,6 +370,10 @@ namespace Vecc.GhostTemplating
                         image.Mutate(context => context.Resize(width, 0));
                         await image.SaveAsPngAsync(Path.Combine(imageDirectory, width + ".png"));
                     }
+                }
+                else
+                {
+                    _logger.LogError("Unable to download index image. {url} {status}", settings.CoverImage, imageResult.StatusCode);
                 }
             }
 
@@ -621,7 +628,7 @@ namespace Vecc.GhostTemplating
                     changefreq = Sitemap.tChangeFreq.daily,
                     changefreqSpecified = true,
                     lastmod = DateTime.UtcNow.ToString("O"),
-                    loc = settings.Url + "authors/" + author.Slug + "/"
+                    loc = settings.Url + "author/" + author.Slug + "/"
                 }).ToArray()
             };
             File.WriteAllBytes(Path.Combine(sitemapDirectory, "authors.xml"), XmlSerialize(map));

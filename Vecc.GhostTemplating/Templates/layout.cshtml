@@ -10,25 +10,25 @@
 }
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="auto-color">
 <head>
     <!--
         Build Number: @(Environment.GetEnvironmentVariable("Build_BuildNumber"))
         Generated at: @(DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"))
     -->
+    <title>@header.Title</title>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-
-    <title>@header.Title</title>
     <meta name="HandheldFriendly" content="True" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="@header.Description" />
-
-    <link rel="stylesheet" type="text/css" href="/assets/screen.css?v=ebf8f423ff" />
-
-    <link rel="canonical" href="@(header.Url)" />
     <meta name="referrer" content="no-referrer-when-downgrade" />
 
+    <link rel="preload" as="style" type="text/css" href="/assets/screen.css?v=1" />
+    <link rel="preload" as="script" href="/assets/casper.js?v=1" />
+    <link rel="stylesheet" type="text/css" href="/assets/screen.css?v=1" />
+
+    <link rel="canonical" href="@(header.Url)" />
     <meta property="og:site_name" content="@(options.SiteName)" />
     <meta property="og:type" content="@header.OGType" />
     <meta property="og:title" content="@header.OGTitle" />
@@ -44,101 +44,98 @@
     @RenderSection("head", false)
 
     <link rel="alternate" type="application/rss+xml" title="@(options.SiteName)" href="@options.RssFeed" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism-okaidia.min.css" integrity="sha512-mIs9kKbaw6JZFfSuo+MovjU+Ntggfoj8RwAmJbVXQ5mkAX5LlgETQEweFPI18humSPHymTb5iikEOKWF7I8ncQ==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/themes/prism-okaidia.min.css" integrity="sha512-5HvW0a7ihK3ro2KhwEksDHXgIezsTeZybZDIn8d8Y015Ny+t7QWSIjnlCTjFzlK7Klb604HLGjsNqU/i5mJLjQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script defer src="/assets/cards.min.js?v=07da863a3a"></script>
+    <style>
+        :root {
+            --ghost-accent-color: #15171A;
+        }
+    </style>
+    <link rel="stylesheet" type="text/css" href="/assets/cards.min.css?v=1">
 </head>
-<body class="@header.BodyClasses">
-
-    <div class="site-wrapper">
-
-        <header class="@header.HeaderClass">
+<body class="@header.BodyClasses is-head-left-logo has-cover">
+    <div class="viewport">
+        <header id="gh-head" class="gh-head outer">
             @if (header.RenderNavigation)
             {
-                <div class="outer site-nav-main">
-                    <div class="inner">
-                        <nav class="site-nav">
-                            <div class="site-nav-left-wrapper">
-                                <div class="site-nav-left">
-                                    <a class="site-nav-logo" href="/">@(options.SiteName)</a>
-                                    <div class="site-nav-content">
-                                        <ul class="nav">
-                                            @foreach (var nav in header.Navigation)
-                                            {
-                                                <li><a href="@(nav.Url)">@(nav.Label)</a></li>
-                                            }
-                                        </ul>
-                                        <span class="nav-post-title dash">@(header.Title)</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="site-nav-right">
-                                <div class="social-links">
-                                </div>
-                                @if (!string.IsNullOrWhiteSpace(options.FeedlyLink))
-                                {
-                                    <a class="rss-button" href="@(options.FeedlyLink)" title="RSS" target="_blank" rel="noopener">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="6.18" cy="17.82" r="2.18" /><path d="M4 4.44v2.83c7.03 0 12.73 5.7 12.73 12.73h2.83c0-8.59-6.97-15.56-15.56-15.56zm0 5.66v2.83c3.9 0 7.07 3.17 7.07 7.07h2.83c0-5.47-4.43-9.9-9.9-9.9z" /></svg>
-                                    </a>
-                                }
-                            </div>
-                        </nav>
-                    </div>
-                </div>
+                await Html.RenderPartialAsync("navigation.cshtml", Model);
             }
             @RenderSection("postheader", false)
         </header>
 
-        <main id="site-main" class="site-main outer">
-            <div class="@header.InnerDivClasses">
-                @RenderBody()
-            </div>
+        <main class="site-content">
+            @RenderBody()
         </main>
 
         <footer class="site-footer outer">
-            <div class="site-footer-content inner">
+            <div class="inner">
                 <section class="copyright"><a href="@header.Settings.Url">@(options.SiteName)</a> &copy; @DateTime.Now.Year</section>
-                <nav class="site-footer-nav">
-                    <a href="@header.Settings.Url">Latest Posts</a>
-                </nav>
+            </div>
+            <div class="gh-powered-by">
+                <a href="https://ghost.org/" target="_blank" rel="noopener">
+                    Powered by Ghost
+                </a>
+                -
+                Static content generated by
+                <a href="https://github.com/EdwardCooke/Vecc.GhostTemplating">
+                    Vecc.GhostTemplating
+                </a>
             </div>
         </footer>
-
     </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"
+            integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
+            crossorigin="anonymous">
+    </script>
+    <script src="/assets/casper.js?v=1"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous"></script>
-    <script src="/assets/casper.js?v=ebf8f423ff"></script>
+    @*<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous"></script>*@
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/prism.min.js" integrity="sha512-YBk7HhgDZvBxmtOfUdvX0z8IH2d10Hp3aEygaMNhtF8fSOvBZ16D/1bXZTJV6ndk/L/DlXxYStP8jrF77v2MIg==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-aspnet.min.js" integrity="sha512-qpyDw2o453xUjHCXzDG2QZh39puVUB5SkzNqeu1LknDL49vH6n97YHsn0VsiGnj/zOCiNrrDKJwHvlIVePlFPQ==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-bash.min.js" integrity="sha512-JvRd44DHaJAv/o3wxi/dxhz2TO/jwwX8V5/LTr3gj6QMQ6qNNGXk/psoingLDuc5yZmccOq7XhpVaelIZE4tsQ==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-csharp.min.js" integrity="sha512-c+g36Rm5HvMUIjUwTcEA9iVkFtNJrCDDNubbaUEhCuHcEnXRcsnJRVjoEK1k9OryJnu5vF7IW40vjV5F1EfXRw==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-css.min.js" integrity="sha512-1qYok2x2Rsm2y+mrdyrp00iH7xYSgVyIQ1egDAoT7CBZ3kSzlaJK+NhWAh746NeL3gnH6dnP8FGS+3xOdwO7ig==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-css-extras.min.js" integrity="sha512-JEJN8jMnX+Ryl2SPlM18/6TwaH5FnN+Mvasfnh3E7awC/JAVpuWOvc5rSMqCD7MM22x5PxQgRUr5h8G2zHceMQ==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-docker.min.js" integrity="sha512-Zzm/P2jewqKAST5N1nARMvI72sQaPf7iWSO8AzcVsSQiEujG2NWrM/jEuiMDXyehDpHI/7gEZ2O2YsOmiaPx+g==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-http.min.js" integrity="sha512-EXQxWIIHxnR7XNmyw/06uwfg6ehFapkC+aMBkHZ47GAeWby/jGmqlxF+02HwIWquFUIdCtC2J8D/by7JnfowNg==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-javascript.min.js" integrity="sha512-I4ZWqUpk7wqHcm7Gkv7k4IdgrDUTlGm1a7xeqyduqZLWeoGOn2E9us4XNBEDGclpk+6d1CmqIHYwmoyyL59zeA==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-json.min.js" integrity="sha512-IC7rV8RslChgByOdUFC6ePqOGn+OwJhnKC3S5AezM8DAiOdGhJMwgsIvBChsa2yuxxoPbH2+W/kjNUM1cc+jUQ==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-jsx.min.js" integrity="sha512-c1a+pqPUBpCSdbjFqSBAmmdFgw+vJ3IvgwN96s+G5gBAFBTsjfuxF4ZbjYdn3PilySDQ8XTqi0ox/zv//oG73A==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-markdown.min.js" integrity="sha512-pRb3BsoM2hn873HdE8zaDjvlJdpRe2rmSnIkdlVQJiQ1pnIKDtL/dfoaq4wgtvX9J6/uyHeP+r1j71YQRLe2dQ==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-nginx.min.js" integrity="sha512-/MNzg8GlnVrAau/TZClh1jxgHNX0HDgidbGnHS5x1OtbKiNoK3e0XNd1oV16xmmeDHjisa3GKLArUau+43GZ4A==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-powershell.min.js" integrity="sha512-tdxXtrfmqnIUqYpCfqMHUoj+ibbVQ+RMD/9Q9IlPIzLYHkZdIrpQvnjoYivFMxYxFp+EZRUQJjxCog4+V9wSfQ==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-shell-session.min.js" integrity="sha512-p9Q2CABx+Zze5z1dhjfhY1BoGowvE8ADk7B6DOyR1RUPPam6dlvsd2IufQ8HzSOBE3QtJGQKFhPNd9jRBl31+Q==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-sql.min.js" integrity="sha512-fgFGzRJStVVhs4cv/lQfAXHzcXcp4wEB3ElVApu7pkFVODd89d28hrehyJhCJKZrsTXLs00L4If+SOGNz6DoZg==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-xml-doc.min.js" integrity="sha512-7UKWE2rgzbPpx1Yu/BPH7bHTHiIjheYAtyVQUxAjyBjet5956cCO8cFZbMpMkwHt6U7Eg1PciDXNTsGt4Dz33g==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-yaml.min.js" integrity="sha512-QRKKJS95wG2dOCdc7Cm0Zbu+L04xY8fTwhHG3UnqZPMiFrAN8uXrqVTx//eqvTaoYwNJ7oFN3Vej5gnJ+GAxkw==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-typescript.min.js" integrity="sha512-9CvArJQPTJqAXN0HJ9DrggF3yNXh09H/pDkKya7eo7Csk2ZisKOiTdJthVFPKyNc3M0m9ofpgfDwGei0V7pgJw==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/prism.min.js" integrity="sha512-YBk7HhgDZvBxmtOfUdvX0z8IH2d10Hp3aEygaMNhtF8fSOvBZ16D/1bXZTJV6ndk/L/DlXxYStP8jrF77v2MIg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-aspnet.min.js" integrity="sha512-qpyDw2o453xUjHCXzDG2QZh39puVUB5SkzNqeu1LknDL49vH6n97YHsn0VsiGnj/zOCiNrrDKJwHvlIVePlFPQ==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-bash.min.js" integrity="sha512-JvRd44DHaJAv/o3wxi/dxhz2TO/jwwX8V5/LTr3gj6QMQ6qNNGXk/psoingLDuc5yZmccOq7XhpVaelIZE4tsQ==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-csharp.min.js" integrity="sha512-c+g36Rm5HvMUIjUwTcEA9iVkFtNJrCDDNubbaUEhCuHcEnXRcsnJRVjoEK1k9OryJnu5vF7IW40vjV5F1EfXRw==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-css.min.js" integrity="sha512-1qYok2x2Rsm2y+mrdyrp00iH7xYSgVyIQ1egDAoT7CBZ3kSzlaJK+NhWAh746NeL3gnH6dnP8FGS+3xOdwO7ig==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-css-extras.min.js" integrity="sha512-JEJN8jMnX+Ryl2SPlM18/6TwaH5FnN+Mvasfnh3E7awC/JAVpuWOvc5rSMqCD7MM22x5PxQgRUr5h8G2zHceMQ==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-docker.min.js" integrity="sha512-Zzm/P2jewqKAST5N1nARMvI72sQaPf7iWSO8AzcVsSQiEujG2NWrM/jEuiMDXyehDpHI/7gEZ2O2YsOmiaPx+g==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-http.min.js" integrity="sha512-EXQxWIIHxnR7XNmyw/06uwfg6ehFapkC+aMBkHZ47GAeWby/jGmqlxF+02HwIWquFUIdCtC2J8D/by7JnfowNg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-javascript.min.js" integrity="sha512-I4ZWqUpk7wqHcm7Gkv7k4IdgrDUTlGm1a7xeqyduqZLWeoGOn2E9us4XNBEDGclpk+6d1CmqIHYwmoyyL59zeA==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-json.min.js" integrity="sha512-IC7rV8RslChgByOdUFC6ePqOGn+OwJhnKC3S5AezM8DAiOdGhJMwgsIvBChsa2yuxxoPbH2+W/kjNUM1cc+jUQ==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-jsx.min.js" integrity="sha512-c1a+pqPUBpCSdbjFqSBAmmdFgw+vJ3IvgwN96s+G5gBAFBTsjfuxF4ZbjYdn3PilySDQ8XTqi0ox/zv//oG73A==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-markdown.min.js" integrity="sha512-pRb3BsoM2hn873HdE8zaDjvlJdpRe2rmSnIkdlVQJiQ1pnIKDtL/dfoaq4wgtvX9J6/uyHeP+r1j71YQRLe2dQ==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-nginx.min.js" integrity="sha512-/MNzg8GlnVrAau/TZClh1jxgHNX0HDgidbGnHS5x1OtbKiNoK3e0XNd1oV16xmmeDHjisa3GKLArUau+43GZ4A==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-powershell.min.js" integrity="sha512-tdxXtrfmqnIUqYpCfqMHUoj+ibbVQ+RMD/9Q9IlPIzLYHkZdIrpQvnjoYivFMxYxFp+EZRUQJjxCog4+V9wSfQ==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-shell-session.min.js" integrity="sha512-p9Q2CABx+Zze5z1dhjfhY1BoGowvE8ADk7B6DOyR1RUPPam6dlvsd2IufQ8HzSOBE3QtJGQKFhPNd9jRBl31+Q==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-sql.min.js" integrity="sha512-fgFGzRJStVVhs4cv/lQfAXHzcXcp4wEB3ElVApu7pkFVODd89d28hrehyJhCJKZrsTXLs00L4If+SOGNz6DoZg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-xml-doc.min.js" integrity="sha512-7UKWE2rgzbPpx1Yu/BPH7bHTHiIjheYAtyVQUxAjyBjet5956cCO8cFZbMpMkwHt6U7Eg1PciDXNTsGt4Dz33g==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-yaml.min.js" integrity="sha512-QRKKJS95wG2dOCdc7Cm0Zbu+L04xY8fTwhHG3UnqZPMiFrAN8uXrqVTx//eqvTaoYwNJ7oFN3Vej5gnJ+GAxkw==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-typescript.min.js" integrity="sha512-9CvArJQPTJqAXN0HJ9DrggF3yNXh09H/pDkKya7eo7Csk2ZisKOiTdJthVFPKyNc3M0m9ofpgfDwGei0V7pgJw==" crossorigin="anonymous"></script>
 
     @RenderSection("scripts", false)
 
     <script>
-        (function (i, s, o, g, r, a, m) {
-            i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
-                (i[r].q = i[r].q || []).push(arguments)
-            }, i[r].l = 1 * new Date(); a = s.createElement(o),
-                m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
-        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
-        ga('create', '@options.GoogleAnalyticsCode', '@options.GoogleAnalyticsDomain');
-        ga('send', 'pageview');
+        $(document).ready(function () {
+            // Mobile Menu Trigger
+            $('.gh-burger').click(function () {
+                $('body').toggleClass('gh-head-open');
+            });
+            // FitVids - Makes video embeds responsive
+            $(".gh-content").fitVids();
+        });
     </script>
 
+    @if (!string.IsNullOrWhiteSpace(options.GoogleAnalyticsCode))
+    {
+        <script>
+            (function (i, s, o, g, r, a, m) {
+                i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+                    (i[r].q = i[r].q || []).push(arguments)
+                }, i[r].l = 1 * new Date(); a = s.createElement(o),
+                    m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+            })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+            ga('create', '@options.GoogleAnalyticsCode', '@options.GoogleAnalyticsDomain');
+            ga('send', 'pageview');
+        </script>
+    }
 </body>
 </html>

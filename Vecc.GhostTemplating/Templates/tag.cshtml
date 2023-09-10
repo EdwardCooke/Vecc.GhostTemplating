@@ -9,36 +9,78 @@
     var options = templateOptions.Value;
 }
 
-<div class="post-feed">
-    @foreach (var post in Model.PostsToDisplay)
-    {
-        Html.RenderPartial("post-card.cshtml", post);
-    }
-</div>
+<main id="site-main" class="site-main outer">
+    <div class="inner posts">
+        <div class="post-feed">
+            <section class="post-card post-card-large">
+                @if (!string.IsNullOrWhiteSpace(Model.FeatureImage))
+                {
+                    <div class="post-card-image-link">
+                        <img class="post-card-image"
+                             src="@Model.FeatureImage"
+                             alt="@Model.Name" />
+                    </div>
+                }
+                <div class="post-card-content">
+                    <div class="post-card-content-link">
+                        <header class="post-card-header">
+                            <h2 class="post-card-title">@Model.Name</h2>
+                        </header>
+                        <div class="post-card-excerpt">
+                            @if (!string.IsNullOrWhiteSpace(Model.Description))
+                            {
+                                @Model.Description
+                            }
+                            else
+                            {
+                                var postText = "no posts";
+
+                                if (Model.PostCount == 1)
+                                {
+                                    postText = "1 post";
+                                }
+                                else if (Model.PostCount > 1)
+                                {
+                                    postText = $"{Model.PostCount} posts";
+                                }
+
+                                <text>A collection of @postText</text>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </section>
+            @for (var index = 0; index < Model.PostsToDisplay.Length; index++)
+            {
+                await Html.RenderPartialAsync("post-card.cshtml", new PostCard { Index = index, IsIndex = false, IsPaged = false, Post = Model.PostsToDisplay[index] });
+            }
+        </div>
+    </div>
+</main>
 
 @section head
-{
-    <script type="application/ld+json">
     {
-    "@@context": "https://schema.org",
-    "@@type": "Series",
-    "publisher": {
-        "@@type": "Organization",
-        "name": @Html.Raw(Model.Settings.Title.EscapeForJson()),
-        "url": @Html.Raw(Model.Settings.Url.EscapeForJson())
-        "logo": {
-            "@@type": "ImageObject",
-            "url": @Html.Raw((Model.Settings.Url + options.FavoriteIcon).EscapeForJson()),
-            "width": 48,
-            "height": 48
+    <script type="application/ld+json">
+        {
+        "@@context": "https://schema.org",
+        "@@type": "Series",
+        "publisher": {
+            "@@type": "Organization",
+            "name": @Html.Raw(Model.Settings.Title.EscapeForJson()),
+            "url": @Html.Raw(Model.Settings.Url.EscapeForJson())
+            "logo": {
+                "@@type": "ImageObject",
+                "url": @Html.Raw((Model.Settings.Url + options.FavoriteIcon).EscapeForJson()),
+                "width": 48,
+                "height": 48
+            }
+         }
+        "url": @Html.Raw((Model.Settings.Url + "tag/" + Model.Slug).EscapeForJson()),
+        "name": @Html.Raw(Model?.Name.EscapeForJson()),
+        "mainEntityOfPage": {
+            "@@type": "WebPage",
+            "@@id": @Html.Raw(Model.Settings.Url.EscapeForJson())
         }
-     }
-    "url": @Html.Raw((Model.Settings.Url + "tag/" + Model.Slug).EscapeForJson()),
-    "name": @Html.Raw(Model?.Name.EscapeForJson()),
-    "mainEntityOfPage": {
-        "@@type": "WebPage",
-        "@@id": @Html.Raw(Model.Settings.Url.EscapeForJson())
-    }
     </script>
     @if (Model.Previous != null)
     {
@@ -48,15 +90,4 @@
     {
         <link rel="next" href="@(Model.Next)" />
     }
-}
-@section postheader
-{
-    <div class="outer site-header-background no-image">
-        <div class="inner site-header-content">
-            <h1 class="site-title">@Model.Name</h1>
-            <h2 class="site-description">
-                A collection of @Model.PostCount posts
-            </h2>
-        </div>
-    </div>
 }

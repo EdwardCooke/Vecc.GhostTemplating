@@ -9,34 +9,80 @@
     var options = templateOptions.Value;
 }
 
-<div class="post-feed">
-    @foreach (var post in Model.PostsToDisplay)
-    {
-        Html.RenderPartial("post-card.cshtml", post);
-    }
-</div>
+<main id="site-main" class="site-main outer">
+    <div class="inner posts">
+        <div class="post-feed">
+            <section class="post-card post-card-large">
+                <div class="post-card-content">
+                    <div class="post-card-content-link">
+                        <img class="author-profile-pic" src="@Model.ProfileImage" alt="@Model.Name">
+                        <header class="post-card-header">
+                            <h2 class="post-card-title">@Model.Name</h2>
+                        </header>
+                        <div class="post-card-excerpt">@Model.Bio</div>
+                        <footer class="author-profile-footer">
+                            <div class="author-profile-meta">
+                                @if (!string.IsNullOrWhiteSpace(Model.Twitter))
+                                {
+                                    <a class="author-profile-social-link" href="https://www.twitter.com/@Model.Twitter" target="_blank" rel="noopener">
+                                        @{ await Html.RenderPartialAsync("icons/twitter.cshtml"); }
+                                    </a>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(Model.Facebook))
+                                {
+                                    <a class="author-profile-social-link" href="https://www.facebook.com/@Model.Facebook" target="_blank" rel="noopener">
+                                        @{ await Html.RenderPartialAsync("icons/facebook.cshtml"); }
+                                    </a>
+                                }
+                            </div>
+                        </footer>
+                    </div>
+                </div>
+            </section>
+            @for (var index = 0; index < Model.PostsToDisplay.Length; index++)
+            {
+                await Html.RenderPartialAsync("post-card.cshtml", new PostCard { Index = index, IsIndex = false, IsPaged = false, Post = Model.PostsToDisplay[index] });
+            }
+        </div>
+    </div>
+</main>
+
 
 @section head
-{
-    <script type="application/ld+json">
     {
-    "@@context": "https://schema.org",
-    "@@type": "Person",
-    "sameAs": [],
-    "name": @Html.Raw(Model.Name.EscapeForJson()),
-    "url": @Html.Raw((Model.Settings.Url + "/author/" + Model.Slug).EscapeForJson()),
-    "image": {
-        "@@type": "ImageObject",
-        "url": @Html.Raw(Model.ProfileImage.EscapeForJson()),
-        "width": 250,
-        "height": 250
-    },
-    "mainEntityOfPage": {
-        "@@type": "WebPage",
-        "@@id": @Html.Raw(Model.Settings.Url.EscapeForJson())
-    },
-    "description": @Html.Raw(Model.MetaDescription.EscapeForJson())
-    }
+    <script type="application/ld+json">
+        {
+            "@@context": "https://schema.org",
+            "@@type": "Person",
+            "sameAs": [
+        @if (!string.IsNullOrWhiteSpace(Model.Facebook))
+        {
+            <text>@Html.Raw($"https://www.facebook.com/{Model.Facebook}".EscapeForJson())</text>
+            if (!string.IsNullOrWhiteSpace(Model.Twitter))
+            {
+                <text>,</text>
+            }
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.Twitter))
+        {
+            <text>@Html.Raw($"https://www.twitter.com.com/{Model.Twitter}".EscapeForJson())</text>
+        }
+            ],
+            "name": @Html.Raw(Model.Name.EscapeForJson()),
+            "url": @Html.Raw($"{Model.Settings.Url}author/@{Model.Slug}/".EscapeForJson()),
+        @if (!string.IsNullOrWhiteSpace(Model.CoverImage))
+        {
+            <text>
+                "image": {
+                        "@@type": "ImageObject",
+                        "url": @Html.Raw($"{Model.Settings.Url}{Model.CoverImage}".EscapeForJson())
+                    },
+            </text>
+        }
+            "mainEntityOfPage": @Html.Raw($"{Model.Settings.Url}author/@{Model.Slug}/".EscapeForJson()),
+            "description": @Html.Raw(Model.Bio.EscapeForJson())
+        }
+        }
     </script>
     @if (Model.Previous != null)
     {
@@ -46,46 +92,4 @@
     {
         <link rel="next" href="@(Model.Next)" />
     }
-}
-@section postheader
-{
-    <style type="text/css">
-        .responsive-header-img {
-            background-image: url(/content/images/authors/@(Model.Slug)/2000.png);
-        }
-
-        @@media(max-width: 1000px) {
-            .responsive-header-img {
-                background-image: url(/content/images/authors/@(Model.Slug)/1000.png);
-                background-image: -webkit-image-set(url(/content/images/authors/@(Model.Slug)/1000.png) 1x, url(/content/images/authors/@(Model.Slug)/2000.png) 2x);
-                background-image: image-set(url(/content/images/authors/@(Model.Slug)/1000.png) 1x, url(/content/images/authors/@(Model.Slug)/2000.png) 2x);
-            }
-        }
-
-        @@media(max-width: 600px) {
-            .responsive-header-img {
-                background-image: url(/content/images/authors/@(Model.Slug)/600.png);
-                background-image: -webkit-image-set(url(/content/images/authors/@(Model.Slug)/600.png) 1x, url(/content/images/authors/@(Model.Slug)/1000.png) 2x);
-                background-image: image-set(url(/content/images/authors/@(Model.Slug)/600.png) 1x, url(/content/images/authors/@(Model.Slug)/1000.png) 2x);
-            }
-        }
-    </style>
-
-    <div class="outer site-header-background responsive-header-img">
-        <div class="inner">
-            <div class="site-header-content author-header">
-                <img class="author-profile-image" src="@Model.ProfileImage" alt="@Model.Name" />
-                <div class="author-header-content">
-                    <h1 class="site-title">@Model.Name</h1>
-                    <h2 class="author-bio">@Model.Bio</h2>
-                    <div class="author-meta">
-                        <div class="author-location">@Model.Location</div>
-                        <div class="author-stats">
-                            @Model.PostCount.Posts posts
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 }

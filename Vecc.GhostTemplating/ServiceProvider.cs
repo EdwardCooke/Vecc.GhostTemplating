@@ -1,15 +1,4 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Hosting.Internal;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.UserSecrets;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.ObjectPool;
-using System;
-using System.Diagnostics;
-using System.Reflection;
-using Vecc.GhostTemplating.Client;
-using Vecc.GhostTemplating.RazorSupport;
+﻿using Vecc.GhostTemplating.Client;
 
 namespace Vecc.GhostTemplating
 {
@@ -17,14 +6,15 @@ namespace Vecc.GhostTemplating
     {
         public static IServiceProvider Build(string[] args)
         {
-            var services = new ServiceCollection();
+            // We use the webapplication builder because it registers everything necessary for building and using the views. Out of the box.
+            var builder = WebApplication.CreateBuilder(args);
+            var services = builder.Services;
+
             services.AddLogging(builder =>
             {
-                builder.AddConsole();
                 builder.SetMinimumLevel(LogLevel.Trace);
+                builder.AddConsole();
             });
-            var assembly = typeof(Program).Assembly;
-            var attribute = assembly.GetCustomAttribute<UserSecretsIdAttribute>();
 
             var configurationBuilder = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", true)
@@ -35,19 +25,14 @@ namespace Vecc.GhostTemplating
             var configuration = configurationBuilder.Build();
 
             services.AddOptions();
-            services.AddSingleton<IHostingEnvironment>(new HostingEnvironment { ApplicationName = Assembly.GetEntryAssembly()?.GetName().Name });
-            services.AddSingleton((IServiceProvider serviceProvider) => new DiagnosticListener("DummySource"));
-            services.AddSingleton<DiagnosticSource>((IServiceProvider serviceProvider) => new DiagnosticListener("DummySource"));
             services.AddSingleton<GhostClient>();
-            services.AddTransient<ObjectPoolProvider, DefaultObjectPoolProvider>();
             services.Configure<TemplatingOptions>(configuration.GetSection(nameof(TemplatingOptions)));
-
             services.AddMvcCore()
-                .AddRazorViewEngine(options =>
+                .AddRazorViewEngine((o) =>
                 {
-                    options.AllowRecompilingViewsOnFileChange = false;
-                    options.FileProviders.Add(new FileProvider());
-                });
+                    o.ViewLocationFormats.Add("/Templates/{0}.cshtml");
+                })
+                .AddRazorRuntimeCompilation();
 
             return services.BuildServiceProvider();
         }

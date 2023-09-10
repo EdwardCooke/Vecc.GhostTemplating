@@ -1,42 +1,86 @@
 ﻿@using Vecc.GhostTemplating
-@model Post
+@model PostCard
+@{
+    var classes = "post-card post";
+    if (!string.IsNullOrWhiteSpace(Model.Post.FeatureImage))
+    {
+        classes += " no-image";
+    }
+    foreach (var tag in Model.Post.Tags)
+    {
+        classes += $" {tag.Slug}";
+    }
+    if (Model.FeedLayout == "Classic")
+    {
+        if (Model.IsIndex)
+        {
+            if (Model.Index == 0)
+            {
+                classes += " post-card-large";
+            }
+            else if (Model.Index <= 2)
+            {
+                classes += " dynamic";
+            }
+        }
+    }
+    else if (Model.FeedLayout == "Grid")
+    {
+        classes += " keep-ratio";
+    }
+    else if (Model.FeedLayout == "List")
+    {
+        if (Model.IsIndex && Model.IsPaged)
+        {
+            classes += " post-card-large";
+        }
+    }
+}
 
-<article class="post-card post no-image no-image">
-    <div class="post-card-content">
-        <a class="post-card-content-link" href="/@(Model.Slug)/">
-            <header class="post-card-header">
-                @if (Model.PrimaryTag != null)
-                {
-                    <div class="post-card-primary-tag">@(Model.PrimaryTag.Name)</div>
-                }
-                <h2 class="post-card-title">@(Model.Title)</h2>
-            </header>
-
-            <section class="post-card-excerpt">
-                <p>@(Model.Excerpt)</p>
-            </section>
+<article class="@classes">
+    @if (!string.IsNullOrWhiteSpace(Model.Post.FeatureImage))
+    {
+        <a class="post-card-image-link" href="@Model.Post.Url">
+            <img class="post-card-image"
+                 src="@Model.Post.FeatureImage"
+                 alt="@(Model.Post.FeatureImageAlt ?? Model.Post.Title)"
+                 loading="lazy" />
         </a>
-
+    }
+    <div class="post-card-content">
+        <a class="post-card-content-link" href="@Model.Post.Url">
+            <header class="post-card-header">
+                <div class="post-card-tags">
+                    @if (Model.Post.PrimaryTag != null)
+                    {
+                        <span class="post-card-primary-tag">@Model.Post.PrimaryTag.Name</span>
+                    }
+                    @if (Model.Post.Featured)
+                    {
+                        <span class="post-card-featured">@Html.RenderPartialAsync("icons/fire.cshtml")</span>
+                    }
+                </div>
+                <h2 class="post-card-title">
+                    @Model.Post.Title
+                </h2>
+            </header>
+            @if (!string.IsNullOrWhiteSpace(Model.Post.Excerpt))
+            {
+                <div class="post-card-excerpt">@Model.Post.Excerpt</div>
+            }
+        </a>
         <footer class="post-card-meta">
-            <ul class="author-list">
-                @foreach (var author in Model.Authors)
-                {
-                    <li class="author-list-item">
-                        <div class="author-name-tooltip">
-                            @author.Name
-                        </div>
-
-                        <a href="/author/@author.Slug/" class="static-avatar">
-                            <img class="author-profile-image" src="@author.ProfileImage" alt="@author.Name" />
-                        </a>
-                    </li>
-                }
-            </ul>
-            <div class="post-card-byline-content">
-                <span><a href="/author/@(Model.PrimaryAuthor.Slug)/">@Model.PrimaryAuthor.Name</a></span>
-                <span class="post-card-byline-date"><time datetime="@(Model.PublishedAt?.ToString("yyyy-MM-dd"))">@(Model.PublishedAt?.ToString("d MMM yyyy"))</time> <span class="bull">&bull;</span> @(Model.ReadingTime) min read</span>
-            </div>
+            <time class="post-card-meta-date" datetime="@(Model.Post.PublishedAt?.ToString("yyyy-MM-dd"))">
+                @Model.Post.PublishedAt?.ToString("MMMM dd, yyyy")
+            </time>
+            @if (Model.Post.ReadingTime != 0)
+            {
+                <span class="post-card-meta-length">@Model.Post.ReadingTime min read</span>
+            }
         </footer>
-
     </div>
 </article>
+@*<div class="post-card-byline-content">
+    <span><a href="/author/@(Model.PrimaryAuthor.Slug)/">@Model.PrimaryAuthor.Name</a></span>
+    <span class="post-card-byline-date"><time datetime="@(Model.PublishedAt?.ToString("yyyy-MM-dd"))">@(Model.PublishedAt?.ToString("d MMM yyyy"))</time> <span class="bull">&bull;</span> @(Model.ReadingTime) min read</span>
+</div>*@

@@ -3,14 +3,13 @@
     public class Header
     {
         public Author Author { get; set; }
-        public string HeaderClass { get; set; } = "site-header";
         public string BodyClasses { get; set; }
-        public string InnerDivClasses { get; set; } = "inner";
         public string OGDescription { get; set; }
         public string OGType { get; set; } = "website";
         public string OGTitle { get; set; }
         public string OGUrl { get; set; }
         public string OGImage { get; set; }
+        public bool RenderSitename { get; set; } = true;
         public Settings Settings { get; set; }
         public string TwitterCard { get; set; }
         public string TwitterTitle { get; set; }

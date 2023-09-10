@@ -7,9 +7,132 @@
 @{
     Layout = "/Templates/layout.cshtml";
     var options = templateOptions.Value;
+    var classes = $"article post-{Model.Slug}";
 }
+<main id="site-main" class="site-main">
+    <article class="@classes">
+        <header class="article-header gh-canvas">
+            @if (Model.PrimaryTag != null)
+            {
+                <div class="article-tag post-card-tags">
+                    <span>Tagged as: </span>
+                    <span class="post-card-primary-tag">
+                        <a href="@Model.PrimaryTag.Url">@Model.PrimaryTag.Name</a>
+                    </span>
+                    @foreach (var tag in Model.Tags)
+                    {
+                        if (tag.Name != Model.PrimaryTag.Name)
+                        {
+                            <span>
+                                <a href="@tag.Url">
+                                    @tag.Name
+                                </a>
+                            </span>
+                        }
+                    }
+                </div>
+            }
+            @if (Model.Featured)
+            {
+                <span class="post-card-featured">
+                    @{
+                        await Html.RenderPartialAsync("icons/fire.cshtml");
+                    } Featured
+                </span>
+            }
+            <h1 class="article-title">
+                @Model.Title
+            </h1>
+            @if (!string.IsNullOrWhiteSpace(Model.CustomExcerpt))
+            {
+                <p class="article-excerpt">
+                    @Model.CustomExcerpt
+                </p>
+            }
+            <div class="article-byline">
+                <section class="article-byline-content">
+                    <ul class="author-list">
+                        @foreach (var author in Model.Authors)
+                        {
+                            <li class="author-list-item">
+                                @if (!string.IsNullOrWhiteSpace(author.ProfileImage))
+                                {
+                                    <a href="@author.Url" class="author-avatar">
+                                        <img class="author-profile-image"
+                                             src="@author.ProfileImage"
+                                             alt="@author.Name" />
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a href="@author.Url"
+                                       class="author-avatar author-profile-image">
+                                        @{
+                                            await Html.RenderPartialAsync("icons/avatar.cshtml");
+                                        }
+                                    </a>
+                                }
+                            </li>
+                        }
+                    </ul>
 
-<article class="post-full post no-image page no-image">
+                    <div class="article-byline-meta">
+                        <h4 class="author-name">
+                            @Model.PrimaryAuthor.Name
+                        </h4>
+                        <div class="byline-meta-content">
+                            <time class="byline-meta-date" datetime="@Model.PublishedAt?.ToString("yyyy-MM-dd")">
+                                @Model.PublishedAt?.ToString("MMMM dd, yyyy")
+                            </time>
+                            @if (Model.ReadingTime > 0)
+                            {
+                                <span class="byline-reading-time">
+                                    <span class="bull">&bull;</span> @Model.ReadingTime minutes to read
+                                </span>
+                            }
+                        </div>
+                    </div>
+                </section>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(Model.FeatureImage))
+            {
+                <figure class="article-image">
+                    <img src="@Model.FeatureImage"
+                         alt="@Model.FeatureImageAlt" />
+                </figure>
+                @if (!string.IsNullOrWhiteSpace(Model.FeatureImageCaption))
+                {
+                    <figcaption>@Model.FeatureImageCaption</figcaption>
+                }
+            }
+        </header>
+
+        <section class="gh-content gh-canvas">
+            @Html.Raw(Model.HTML)
+        </section>
+
+        @if (!string.IsNullOrWhiteSpace(options.DisqusUrl))
+        {
+            <section class="article-comments gh-canvas">
+                <div id="disqus_thread"></div>
+                <script>
+                    var disqus_config = function () {
+                        this.page.url = "@Model.Url";
+                        this.page.identifier = "ghost-@Model.CommentId";
+                    };
+                    (function () {
+                        var d = document, s = d.createElement('script');
+                        s.src = '@options.DisqusUrl';
+                        s.setAttribute('data-timestamp', +new Date());
+                        (d.head || d.body).appendChild(s);
+                    })();
+                </script>
+            </section>
+        }
+    </article>
+</main>
+@*
+    <article class="post-full post no-image page no-image">
     <header class="post-full-header">
 
         @if (Model.Tags.Length > 0)
@@ -17,7 +140,9 @@
             <section class="post-full-tags">
                 @foreach (var tag in Model.Tags)
                 {
-                    <a href="@(tag.Url)">@(tag.Name)</a><TEXT>&nbsp;</TEXT>
+                    <a href="@(tag.Url)">@(tag.Name)</a>
+
+                    <TEXT>&nbsp;</TEXT>
                 }
             </section>
         }
@@ -66,28 +191,11 @@
             @Html.Raw(Model.HTML)
         </div>
     </section>
-    @if (!string.IsNullOrWhiteSpace(options.DisqusUrl))
-    {
-        <section class="post-full-comments">
-            <div id="disqus_thread"></div>
-            <script>
-            var disqus_config = function () {
-                this.page.url = "@Model.Url";
-                this.page.identifier = "ghost-@Model.CommentId";
-            };
-            (function () {
-                var d = document, s = d.createElement('script');
-                s.src = '@options.DisqusUrl';
-                s.setAttribute('data-timestamp', +new Date());
-                (d.head || d.body).appendChild(s);
-            })();
-            </script>
-        </section>
-    }
-</article>
 
+</article>
+*@
 @section head
-{
+    {
     @foreach (var tag in Model.Tags)
     {
         <meta property="article:tag" content="@(tag.Name)" />
@@ -99,55 +207,56 @@
     <link rel="amphtml" href="@(Model.Settings.Url)@(Model.Slug)/amp" />
 
     <script type="application/ld+json">
-{
-    "@@context": "https://schema.org",
-    "@@type": "Article",
-    "publisher": {
-        "@@type": "Organization",
-        "name": @Html.Raw(options.SiteName.EscapeForJson()),
-        "url": @Html.Raw(Model.Settings.Url.EscapeForJson()),
-        "logo": {
-            "@@type": "ImageObject",
-            "url": @Html.Raw((Model.Settings.Url + options.FavoriteIcon).EscapeForJson()),
-            "width": 48,
-            "height": 48
+        {
+            "@@context": "https://schema.org",
+            "@@type": "Article",
+            "publisher": {
+                "@@type": "Organization",
+                "name": @Html.Raw(options.SiteName.EscapeForJson()),
+                "url": @Html.Raw(Model.Settings.Url.EscapeForJson()),
+                "logo": {
+                    "@@type": "ImageObject",
+                    "url": @Html.Raw((Model.Settings.Url + options.FavoriteIcon).EscapeForJson()),
+                    "width": 48,
+                    "height": 48
+                }
+            },
+            "author": {
+                "@@type": "Person",
+                "name": @Html.Raw(Model.PrimaryAuthor.Name.EscapeForJson()),
+                "image": {
+                    "@@type": "ImageObject",
+                    "url": @Html.Raw(Model.PrimaryAuthor.ProfileImage.EscapeForJson()),
+                    "width": 250,
+                    "height": 250
+                },
+                "sameAs": []
+            },
+            "headline": @Html.Raw(Model.Title.EscapeForJson()),
+            "url": @Html.Raw((Model.Settings.Url + Model.Slug +"/").EscapeForJson()),
+        @if (Model.PublishedAt.HasValue)
+        {
+            <TEXT>"datePublished": @Html.Raw(Model.PublishedAt?.ToUniversalTime().ToString("O").EscapeForJson()),
+            </TEXT>
         }
-    },
-    "author": {
-        "@@type": "Person",
-        "name": @Html.Raw(Model.PrimaryAuthor.Name.EscapeForJson()),
-        "image": {
-            "@@type": "ImageObject",
-            "url": @Html.Raw(Model.PrimaryAuthor.ProfileImage.EscapeForJson()),
-            "width": 250,
-            "height": 250
-        },
-        "sameAs": []
-    },
-    "headline": @Html.Raw(Model.Title.EscapeForJson()),
-    "url": @Html.Raw((Model.Settings.Url + Model.Slug +"/").EscapeForJson()),
-    @if (Model.PublishedAt.HasValue)
-    {
-    <TEXT>"datePublished": @Html.Raw(Model.PublishedAt?.ToUniversalTime().ToString("O").EscapeForJson()),
-        </TEXT>
-    }
-    "dateModified": @Html.Raw(Model.UpdatedAt.ToUniversalTime().ToString("O").EscapeForJson()),
-    @if (Model.Tags!= null)
-    {
-    <TEXT>"keywords": @Html.Raw(string.Join(", ", Model.Tags.Select(x=>x.Name)).EscapeForJson()),
-        </TEXT>
-    }
-    "description": @Html.Raw(Model.MetaDescription.EscapeForJson()),
-    "mainEntityOfPage": {
-        "@@type": "WebPage",
-        "@@id": @Html.Raw(Model.Settings.Url.EscapeForJson())
-    }
-}
+            "dateModified": @Html.Raw(Model.UpdatedAt.ToUniversalTime().ToString("O").EscapeForJson()),
+        @if (Model.Tags != null)
+        {
+            <TEXT>"keywords": @Html.Raw(string.Join(", ", Model.Tags.Select(x=>x.Name)).EscapeForJson()),
+            </TEXT>
+        }
+            "description": @Html.Raw(Model.MetaDescription.EscapeForJson()),
+            "mainEntityOfPage": {
+                "@@type": "WebPage",
+                "@@id": @Html.Raw(Model.Settings.Url.EscapeForJson())
+            }
+        }
     </script>
 }
 
-@section scripts
-{
+@*
+    @section scripts
+    {
     <script>
         $(document).ready(function () {
             // FitVids - start
@@ -182,4 +291,4 @@
             });
         });
     </script>
-}
+}*@

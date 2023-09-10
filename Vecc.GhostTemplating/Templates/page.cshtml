@@ -7,18 +7,34 @@
 @{
     Layout = "/Templates/layout.cshtml";
     var options = templateOptions.Value;
+    var classes = $"article post article-{Model.Slug}";
+    if (string.IsNullOrWhiteSpace(Model.FeatureImage))
+    {
+        classes += " no-image";
+    }
 }
 
-<article class="post-full post no-image page no-image">
-    <header class="post-full-header">
-        <h1 class="post-full-title">@Model.Title</h1>
-    </header>
-    <section class="post-full-content">
-        <div class="post-content">
+<main id="site-main" class="site-main">
+    <article class="@classes">
+        <header class="article-header gh-canvas">
+            <h1 class="article-title">
+                @Model.Title
+            </h1>
+            @if (!string.IsNullOrWhiteSpace(Model.FeatureImage))
+            {
+                <img src="@Model.FeatureImage"
+                    alt="@Model.FeatureImageAlt" />
+                @if (!string.IsNullOrWhiteSpace(Model.FeatureImageCaption))
+                {
+                    <figcaption>@Model.FeatureImageCaption</figcaption>
+                }
+            }
+        </header>
+        <section class="gh-content gh-canvas">
             @Html.Raw(Model.HTML)
-        </div>
-    </section>
-</article>
+        </section>
+    </article>
+</main>
 
 @section head
 {
@@ -67,17 +83,5 @@
         "@@id": @Html.Raw(Model.Settings.Url.EscapeForJson())
     }
 }
-    </script>
-}
-
-@section scripts
-{
-    <script>
-        $(document).ready(function () {
-            // FitVids - start
-            var $postContent = $(".post-full-content");
-            $postContent.fitVids();
-            // FitVids - end
-        });
     </script>
 }

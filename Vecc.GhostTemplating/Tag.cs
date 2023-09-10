@@ -74,8 +74,7 @@ namespace Vecc.GhostTemplating
                 Author = null,
                 BodyClasses = "tag-template",
                 Description = MetaDescription,
-                InnerDivClasses = "inner posts",
-                HeaderClass = "site-archive-header",
+                //HeaderClass = "site-archive-header",
                 OGDescription = MetaDescription,
                 Settings = Settings,
                 Title = Name

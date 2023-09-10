@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace Vecc.GhostTemplating
@@ -11,11 +12,11 @@ namespace Vecc.GhostTemplating
         [JsonPropertyName("status")]
         public string Status { get; set; }
 
-        public static implicit operator Header(Page page)
+        public override Header GetHeader()
         {
             var result = new Header();
 
-            if (page.Tags!= null && page.Tags.Any())
+            if (Tags != null && Tags.Any())
             {
                 result.BodyClasses = "page-template page-tags";
             }
@@ -24,22 +25,22 @@ namespace Vecc.GhostTemplating
                 result.BodyClasses = "page-template";
             }
 
-            result.Author = page.PrimaryAuthor;
-            result.Description = page.MetaDescription ?? page.CustomExcerpt ?? page.Excerpt;
+            result.Author = PrimaryAuthor;
+            result.Description = MetaDescription ?? CustomExcerpt ?? Excerpt;
             result.ImageHeight = 0;
             result.ImageWidth = 0;
-            result.OGDescription = page.OGDescription;
-            result.OGImage = page.OGImage;
-            result.OGTitle = page.OGTitle;
-            result.OGUrl = page.Url;
-            result.Settings = page.Settings;
-            result.Title = page.Title;
+            result.OGDescription = OGDescription;
+            result.OGImage = OGImage;
+            result.OGTitle = OGTitle;
+            result.OGUrl = Url;
+            result.Settings = Settings;
+            result.Title = Title;
             result.TwitterCard = "summary";
-            result.TwitterDescription = page.TwitterDescription;
-            result.TwitterImage = page.TwitterImage;
-            result.TwitterTitle = page.TwitterTitle;
-            result.TwitterUrl = page.Url;
-            result.Url = page.Url;
+            result.TwitterDescription = TwitterDescription;
+            result.TwitterImage = TwitterImage;
+            result.TwitterTitle = TwitterTitle;
+            result.TwitterUrl = Url;
+            result.Url = Url;
 
             return result;
         }

@@ -9,75 +9,10 @@
     var options = templateOptions.Value;
 }
 
-<div class="post-feed">
-    @foreach (var post in Model.PostsToDisplay)
-    {
-        Html.RenderPartial("post-card.cshtml", post);
-    }
-</div>
 
-@section head
-{
-    <script type="application/ld+json">
+@*@section postheader
     {
-    "@@context": "https://schema.org",
-    "@@type": "Series",
-    "publisher": {
-        "@@type": "Organization",
-        "name": @Html.Raw(options.SiteName.EscapeForJson()),
-        "url": "@Html.Raw(Model.Settings.Url.EscapeForJson()))",
-        "logo": {
-            "@@type": "ImageObject",
-            "url": @Html.Raw((Model.Settings.Url + options.FavoriteIcon).EscapeForJson()),
-            "width": 48,
-            "height": 48
-        }
-     }
-    "url": @Html.Raw(Model.Settings.Url.EscapeForJson()),
-    "image": {
-        "@@type": "ImageObject",
-        "url": @Html.Raw((Model.Settings.Url+"content/images/main/image.png").EscapeForJson()),
-        "width": @(Model.ImageWidth),
-        "height": @(Model.ImageHeight)
-    },
-    "mainEntityOfPage": {
-        "@@type": "WebPage",
-        "@@id": @Html.Raw(Model.Settings.Url.EscapeForJson())
-    }
-    </script>
-    @if (Model.Previous != null)
-    {
-        <link rel="prev" href="@(Model.Previous)" />
-    }
-    @if (Model.Next != null)
-    {
-        <link rel="next" href="@(Model.Next)" />
-    }
-}
 
-@section postheader
-{
-    <style type="text/css">
-        .responsive-header-img {
-            background-image: url(/content/images/index/2000.png);
-        }
-
-        @@media(max-width: 1000px) {
-            .responsive-header-img {
-                background-image: url(/content/images/index/1000.png);
-                background-image: -webkit-image-set(url(/content/images/index/1000.png) 1x, url(/content/images/index/2000.png) 2x);
-                background-image: image-set(url(/content/images/index/1000.png) 1x, url(/content/images/index/2000.png) 2x);
-            }
-        }
-
-        @@media(max-width: 600px) {
-            .responsive-header-img {
-                background-image: url(/content/images/index600.png);
-                background-image: -webkit-image-set(url(/content/images/index/600.png) 1x, url(/content/images/index/1000.png) 2x);
-                background-image: image-set(url(/content/images/index/600.png) 1x, url(/content/images/index/1000.png) 2x);
-            }
-        }
-    </style>
     <div class="outer site-header-background responsive-header-img">
         <div class="inner">
             <nav class="site-nav">
@@ -113,4 +48,93 @@
             </div>
         </div>
     </div>
+}*@
+
+
+<div class="site-header-content outer">
+    <img class="site-header-cover"
+         srcset="/content/images/index/600.png 600w,
+                 /content/images/index/1000.png 1000w,
+                 /content/images/index/2000.png 2000w"
+         sizes="100vw"
+         src="/content/images/index/2000.png" alt="Frakkingsweet">
+
+    <div class="site-header-inner inner">
+        <h1 class="site-title">Frakkingsweet</h1>
+        <p class="site-description">Some nifty development and operations tips and tricks</p>
+    </div>
+
+</div>
+
+<main id="site-main" class="site-main outer">
+    <div class="inner posts">
+        <div class="post-feed">
+            @for (var index = 0; index < Model.PostsToDisplay.Length; index++)
+            {
+                await Html.RenderPartialAsync("post-card.cshtml", new PostCard { Index = index, IsIndex = false, IsPaged = false, Post = Model.PostsToDisplay[index] });
+            }
+        </div>
+    </div>
+</main>
+
+@section head
+    {
+    <script type="application/ld+json">
+        {
+        "@@context": "https://schema.org",
+        "@@type": "Series",
+        "publisher": {
+            "@@type": "Organization",
+            "name": @Html.Raw(options.SiteName.EscapeForJson()),
+            "url": @Html.Raw(Model.Settings.Url.EscapeForJson())),
+            "logo": {
+                "@@type": "ImageObject",
+                "url": @Html.Raw((Model.Settings.Url + options.FavoriteIcon).EscapeForJson()),
+                "width": 48,
+                "height": 48
+            }
+         }
+        "url": @Html.Raw(Model.Settings.Url.EscapeForJson()),
+        "image": {
+            "@@type": "ImageObject",
+            "url": @Html.Raw((Model.Settings.Url+"content/images/main/image.png").EscapeForJson()),
+            "width": @(Model.ImageWidth),
+            "height": @(Model.ImageHeight)
+        },
+        "mainEntityOfPage": {
+            "@@type": "WebPage",
+            "@@id": @Html.Raw(Model.Settings.Url.EscapeForJson())
+        }
+    </script>
+    @if (Model.Previous != null)
+    {
+        <link rel="prev" href="@(Model.Previous)" />
+    }
+    @if (Model.Next != null)
+    {
+        <link rel="next" href="@(Model.Next)" />
+    }
+    <style type="text/css">
+        .responsive-header-img {
+            background-image: url(/content/images/index/2000.png);
+        }
+
+        @@media(max-width: 1000px) {
+            .responsive-header-img {
+                background-image: url(/content/images/index/1000.png);
+                background-image: -webkit-image-set(url(/content/images/index/1000.png) 1x, url(/content/images/index/2000.png) 2x);
+                background-image: image-set(url(/content/images/index/1000.png) 1x, url(/content/images/index/2000.png) 2x);
+            }
+        }
+
+        @@media(max-width: 600px) {
+            .responsive-header-img {
+                background-image: url(/content/images/index600.png);
+                background-image: -webkit-image-set(url(/content/images/index/600.png) 1x, url(/content/images/index/1000.png) 2x);
+                background-image: image-set(url(/content/images/index/600.png) 1x, url(/content/images/index/1000.png) 2x);
+            }
+        }
+    </style>
 }
+
+

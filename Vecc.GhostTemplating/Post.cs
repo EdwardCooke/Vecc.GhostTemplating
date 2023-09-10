@@ -29,6 +29,12 @@ namespace Vecc.GhostTemplating
         [JsonPropertyName("feature_image")]
         public string FeatureImage { get; set; }
 
+        [JsonPropertyName("feature_image_alt")]
+        public string FeatureImageAlt { get; set; }
+
+        [JsonPropertyName("feature_image_caption")]
+        public string FeatureImageCaption { get; set; }
+
         [JsonPropertyName("featured")]
         public bool Featured { get; set; }
 
@@ -115,7 +121,7 @@ namespace Vecc.GhostTemplating
 
         public Settings Settings { get; set; }
 
-        public Header GetHeader()
+        public virtual Header GetHeader()
         {
             var result = new Header();
 
