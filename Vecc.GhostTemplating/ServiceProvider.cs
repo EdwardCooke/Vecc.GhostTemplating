@@ -18,7 +18,7 @@ namespace Vecc.GhostTemplating
 
             var configurationBuilder = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", true)
-                .AddUserSecrets<Program>(false)
+                .AddUserSecrets<Program>(true)
                 .AddEnvironmentVariables()
                 .AddCommandLine(args);
 
